@@ -35,17 +35,23 @@ The five-year period is a maintenance target, not a promise that tax rules stay 
 ## Current scope and limitations
 
 - AY2026 covers accounting year-ends from 1 April 2025 through 31 March 2026.
-- Deadlines reflect the 2025/26 IRD material reviewed on 2 November 2026.
+- Deadlines reflect the 2025/26 IRD and GovHK material reviewed on 2 November 2026.
 - N-code, D-code, M-code and the special M-code allowable-loss case have different conditions. The loss-case extension requires the IRD extension process and a return showing an allowable loss; it is not a universal deadline for any loss-making company.
 - The primary-data rules engine is unit tested separately from the UI.
 - This app does not contact IRD, submit a return or determine an individual taxpayer's legal deadline.
 
-## Primary IRD sources
+## Primary references
 
-- [2025/26 circular letter to tax representatives](https://www.ird.gov.hk/eng/pdf/bel26e.pdf)
-- [D-code extension letter](https://www.ird.gov.hk/eng/pdf/bel26ea.pdf)
-- [M-code extension letter](https://www.ird.gov.hk/eng/pdf/bel26eb.pdf)
-- [Electronic filing of Profits Tax Return](https://www.ird.gov.hk/eng/tax/bus_epf.htm)
+- [GovHK: Profits Tax Return filing dates and extensions](https://www.gov.hk/en/residents/taxes/taxfiling/filing/types/profitstax.htm)
+- [IRD 2025/26 circular letter to tax representatives](https://www.ird.gov.hk/eng/pdf/bel26e.pdf)
+- [IRD D-code extension letter](https://www.ird.gov.hk/eng/pdf/bel26ea.pdf)
+- [IRD M-code extension letter](https://www.ird.gov.hk/eng/pdf/bel26eb.pdf)
+- [IRD electronic filing information](https://www.ird.gov.hk/eng/tax/bus_epf.htm)
+- [IRD electronic Block Extension Scheme](https://www.ird.gov.hk/eng/tax/electronic_bes.htm)
+
+## Deploy on GitHub Pages
+
+The repository includes a Pages workflow at `.github/workflows/deploy-pages.yml`. After creating the repository, enable **Settings → Pages → GitHub Actions** once. Pushes to `main` then run tests, type-check, build and deploy the static app. The published project path is configured for `https://briangshk.github.io/hk-profits-tax-deadline-calculator/`.
 
 ## License
 

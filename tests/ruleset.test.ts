@@ -41,7 +41,7 @@ describe('annual ruleset integrity', () => {
   it('includes primary IRD references with direct HTTPS URLs', () => {
     expect(AY2026.sources.length).toBeGreaterThanOrEqual(3);
     for (const source of AY2026.sources) {
-      expect(source.url).toMatch(/^https:\/\/www\.ird\.gov\.hk\//);
+      expect(source.url).toMatch(/^https:\/\/www\.(ird\.gov\.hk|gov\.hk)\//);
       expect(source.checkedOn).toMatch(/^2026-/);
     }
   });
