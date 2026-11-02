@@ -86,26 +86,9 @@ export default function App() {
         {assessmentYear !== undefined && !invalidCalendarDate && !ruleset && (
           <div className="result-card result-error" role="status">
             <h3>PTR year identified; official deadline not verified</h3>
-            <p>We identify this as likely {validYearLabel}, with the standard {accountingCode}-code accounting period. The dates below, if shown, are planning estimates extrapolated from the latest verified year, not IRD-published deadlines. They may change, including due to weekends, holidays, code-specific extensions, e-filing arrangements or special circumstances. Confirm the actual date on the return and the latest IRD notice before relying on a deadline.</p>
+            <p>We identify this as likely {validYearLabel}, with the standard {accountingCode}-code accounting period. The indicative dates below are extrapolated from the latest verified year, not IRD-published deadlines. They may change due to weekends, holidays, code-specific extensions, e-filing arrangements or special circumstances. Confirm the actual date on the return and latest IRD notice before relying on a deadline.</p>
             <p><a href={IRD_RETURN_GUIDE} target="_blank" rel="noreferrer">Check the IRD Tax Representatives’ Corner <ExternalLink size={13} /></a></p>
           </div>
-        )}
-
-        {futureEstimates && (
-          <section className="reference-section" aria-labelledby="estimate-title">
-            <div className="section-heading reference-heading"><div><p className="eyebrow">PLANNING ESTIMATE — NOT AN OFFICIAL DEADLINE</p><h2 id="estimate-title">Indicative dates for {validYearLabel}</h2></div></div>
-            <p className="section-intro">These dates assume the AY2026 schedule repeats on the same month/day pattern. This calculator has not verified an annual ruleset for {validYearLabel}; these are rough planning estimates, not confirmed IRD dates.</p>
-            <div className="table-wrap"><table><caption>Indicative paper and electronic dates for {validYearLabel}; confirm against IRD notices</caption><thead><tr><th scope="col">Return code</th><th scope="col">Indicative paper date</th><th scope="col">Indicative electronic date</th></tr></thead>
-              <tbody>{futureEstimates.map((estimate) => (
-                <tr key={`${estimate.code}-${estimate.label}`}>
-                  <th scope="row" data-label="Return code">{estimate.label}</th>
-                  <td data-label="Indicative paper date">{formatDate(estimate.paperDue)}</td>
-                  <td data-label="Indicative electronic date">{formatDate(estimate.electronicDue)}</td>
-                </tr>
-              ))}</tbody>
-            </table></div>
-            <p className="table-note">The M-code loss-case estimate is conditional on an allowable current-year loss and the required IRD extension request or notification. It is not a general deadline for loss-making companies.</p>
-          </section>
         )}
 
         {ruleset && !invalidCalendarDate && (
@@ -169,6 +152,23 @@ export default function App() {
             </section>
             <aside className="disclaimer"><Info size={17} /><p>{ruleset.caveat}</p></aside>
           </>
+        )}
+
+        {futureEstimates && (
+          <section className="reference-section" aria-labelledby="estimate-title">
+            <div className="section-heading reference-heading"><div><p className="eyebrow">PLANNING ESTIMATE — NOT AN OFFICIAL DEADLINE</p><h2 id="estimate-title">Indicative dates for {validYearLabel}</h2></div></div>
+            <p className="section-intro">These dates assume the AY2026 schedule repeats on the same month/day pattern. This calculator has not verified an annual ruleset for {validYearLabel}; these are rough planning estimates, not confirmed IRD dates.</p>
+            <div className="table-wrap"><table><caption>Indicative paper and electronic dates for {validYearLabel}; confirm against IRD notices</caption><thead><tr><th scope="col">Return code</th><th scope="col">Indicative paper date</th><th scope="col">Indicative electronic date</th></tr></thead>
+              <tbody>{futureEstimates.map((estimate) => (
+                <tr key={`${estimate.code}-${estimate.label}`}>
+                  <th scope="row" data-label="Return code">{estimate.label}</th>
+                  <td data-label="Indicative paper date">{formatDate(estimate.paperDue)}</td>
+                  <td data-label="Indicative electronic date">{formatDate(estimate.electronicDue)}</td>
+                </tr>
+              ))}</tbody>
+            </table></div>
+            <p className="table-note">The M-code loss-case estimate is conditional on an allowable current-year loss and the required IRD extension request or notification. It is not a general deadline for loss-making companies.</p>
+          </section>
         )}
       </section>
       <footer className="footer"><span>Independent reference aid · Hong Kong</span><span>Year/code lookup: all valid calendar dates · verified deadlines: PTR 2018/19–2025/26 · later estimates only</span></footer>
