@@ -1,0 +1,60 @@
+name: Annual IRD rules review reminder
+
+on:
+  schedule:
+    # 09:00 Hong Kong time on 15 April each year, after the new tax-year circulars normally appear.
+    - cron: '0 1 15 4 *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  create-review-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create one annual rules-review issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const year = new Date().getUTCFullYear();
+            if (year < 2027 || year > 2031) {
+              core.notice(`Five-year reminder window ended or has not started (UTC year ${year}); no issue created.`);
+              return;
+            }
+            const title = `Annual tax rules review: AY${year}`;
+            const { owner, repo } = context.repo;
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            });
+            if (existing.some((issue) => !issue.pull_request && issue.title === title)) {
+              core.notice(`Open review issue already exists: ${title}`);
+              return;
+            }
+            const body = [
+              `## Annual rules review for AY${year}`,
+              '',
+              'Do not copy forward dates from the prior year. Verify the current-year primary IRD instructions, then update the ruleset and boundary tests.',
+              '',
+              '### Checklist',
+              '- [ ] Locate the current IRD block-extension circular and any later amendments.',
+              '- [ ] Verify accounting-date code ranges and paper filing dates.',
+              '- [ ] Verify electronic filing dates and any application/eligibility conditions.',
+              '- [ ] Verify M-code allowable-loss extension conditions and the required filing/request dates.',
+              '- [ ] Check mandatory e-filing and any separate Part 4AA treatment.',
+              '- [ ] Update sources, checked dates, `lastVerified`, rule notes and app year labels.',
+              '- [ ] Add/update tests for every date boundary, loss-case route, and coverage gap/overlap.',
+              '- [ ] Run `npm ci`, `npm test`, `npm run typecheck`, and `npm run build`.',
+              '- [ ] Review copy with a qualified tax professional if using it to guide real filing decisions.',
+              '',
+              '### Primary sources to start with',
+              '- [IRD Tax Representatives’ Corner](https://www.ird.gov.hk/eng/tax/taxrep.htm)',
+              '- [IRD electronic filing information](https://www.ird.gov.hk/eng/tax/bus_epf.htm)',
+              '',
+              'This reminder is generated during the project’s five-year maintenance window (2027–2031). It does not mean the new rules have already been verified or updated.',
+            ].join('\n');
+            const created = await github.rest.issues.create({ owner, repo, title, body });
+            core.notice(`Created ${created.data.html_url}`);
