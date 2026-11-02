@@ -1,6 +1,6 @@
 # Hong Kong Profits Tax Deadline Calculator
 
-A source-linked calculator for likely Profits Tax Return (PTR) year, accounting-date code and represented-return filing dates. Verified annual rulesets currently cover PTR 2018/19 (AY2019) through PTR 2025/26 (AY2026).
+A source-linked calculator for likely Profits Tax Return (PTR) year, standard N/D/M accounting-date code and represented-return filing dates. Year and code identification works for all valid calendar dates from 0001-01-01 through 9999-12-31; verified annual deadline rulesets currently cover PTR 2018/19 (AY2019) through PTR 2025/26 (AY2026).
 
 ## Run locally
 
@@ -21,7 +21,7 @@ npm run build
 
 ## PTR year identification
 
-For a normal basis period, the year of assessment runs from 1 April to 31 March. The calculator labels the likely PTR year from the accounting period-end date that falls within that AY. For example, valid dates 28 February 2025 and 30 June 2024 both point to PTR 2024/25. User examples 31 February 2025 and 31 June 2024 are impossible calendar dates: the interface can explain the likely PTR year from the year/month, but asks the user to correct the date before calculating a deadline. A non-standard or longer basis period, accounting-date change, commencement, or specific IRD direction may change which return applies; the actual PTR is authoritative.
+For a normal basis period, the year of assessment runs from 1 April to 31 March. The calculator labels the likely PTR year from the accounting period-end date that falls within that AY and identifies the standard accounting code for any valid date: N (1 April–30 November), D (1–31 December), M (1 January–31 March). Use the date input's browser calendar picker or type a date directly. Year/code identification is supported from 0001 through 9999; filing dates are shown only for verified annual rulesets. A non-standard or longer basis period, accounting-date change, commencement, or specific IRD direction may change which return applies; the actual PTR is authoritative. Impossible dates such as 31 February or 31 June cannot be selected through the calendar input and cannot be used to calculate a deadline.
 
 ## Rules and maintenance
 
@@ -30,7 +30,7 @@ The annual IRD block-extension circular, later amendments and date-specific cond
 - Dependabot checks npm packages and GitHub Actions weekly; CI runs tests, type-check and production build on pushes and pull requests.
 - Historical dates are not treated as a universal arithmetic formula. Each supported year includes its IRD block-extension circular and located subsequent amendment circulars where applicable.
 - Older electronic/Internet extensions may be application-based and depend on return issue date, the later of normal/extended dates, and eligibility. The tool does not infer an electronic date if the source facts do not support one safely.
-- Future PTR years can be identified, but deadline rules remain unavailable until that year's IRD notices are published and verified. Dates are not copied forward.
+- Historical and future standard year/code lookup is an arithmetic mapping from the accounting-period end to N/D/M; it does not imply that past or future filing dates are verified. Deadline rules remain unavailable until year-specific IRD notices are checked, and no dates are copied forward.
 - Update `lastVerified`, source URLs and checked dates on each review. Test every date boundary, filing route and loss-case exception.
 - Five-year maintenance is a target, not a promise that rules stay unchanged. The IRD notice and current-year instructions always prevail.
 

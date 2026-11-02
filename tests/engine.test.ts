@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { AY2026 } from '../src/rules/ay2026';
 import {
   ACTIVE_RULE_SETS,
+  accountingDateCodeForDate,
   assessmentYearForDate,
   assessmentYearNumberForDate,
   assessmentYearNumberFromEnteredDate,
@@ -47,6 +48,38 @@ describe('multi-year PTR and assessment-year lookup', () => {
     expect(returnYearLabel(assessmentYearNumberForDate('2026-04-01')!)).toBe('PTR 2026/27 (AY2027)');
     expect(rulesetForDate('2026-04-01')).toBeUndefined();
     expect(calculateDeadline('2026-04-01')).toBeNull();
+  });
+
+  it('identifies the standard N/D/M accounting code across past and far-future calendar years', () => {
+    const examples: [string, number, 'N' | 'D' | 'M'][] = [
+      ['0001-04-01', 2, 'N'],
+      ['1899-11-30', 1900, 'N'],
+      ['1900-12-31', 1901, 'D'],
+      ['2000-02-29', 2000, 'M'],
+      ['2024-06-30', 2025, 'N'],
+      ['2025-12-31', 2026, 'D'],
+      ['9999-03-31', 9999, 'M'],
+    ];
+    for (const [date, expectedAy, code] of examples) {
+      expect(assessmentYearNumberForDate(date), date).toBe(expectedAy);
+      expect(accountingDateCodeForDate(date), date).toBe(code);
+      const suffix = expectedAy < 10000 ? String(expectedAy % 100).padStart(2, '0') : String(expectedAy);
+      expect(returnYearLabel(expectedAy), date).toBe(`PTR ${expectedAy - 1}/${suffix} (AY${expectedAy})`);
+    }
+    expect(returnYearLabel(10000)).toBe('PTR 9999/10000 (AY10000)');
+    expect(accountingDateCodeForDate('9999-12-31')).toBe('D');
+    expect(accountingDateCodeForDate('1900-01-01')).toBe('M');
+    expect(accountingDateCodeForDate('1900-13-01')).toBeUndefined();
+  });
+
+  it('does not invent deadline rules for arbitrary past or future valid dates', () => {
+    for (const date of ['0001-01-01', '1899-12-31', '2100-06-30', '9999-12-31']) {
+      const ay = assessmentYearNumberForDate(date)!;
+      expect(ay).toBeGreaterThan(0);
+      expect(accountingDateCodeForDate(date)).toBeDefined();
+      expect(rulesetForDate(date)).toBeUndefined();
+      expect(calculateDeadline(date)).toBeNull();
+    }
   });
 });
 
@@ -97,6 +130,10 @@ describe('AY2026 IRD return-code boundaries', () => {
   });
 
   it('formats dates using UTC calendar fields', () => {
+    expect(isIsoDate('9999-12-31')).toBe(true);
+    expect(isIsoDate('0000-01-01')).toBe(false);
+    expect(isIsoDate('10000-01-01')).toBe(false);
+    expect(formatDate('0001-01-01', 'en-GB')).toBe('1 January 1');
     expect(formatDate('2026-11-30', 'en-GB')).toBe('30 November 2026');
   });
 

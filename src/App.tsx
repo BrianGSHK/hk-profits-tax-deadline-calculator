@@ -1,6 +1,6 @@
 import React from 'react';
 import { CalendarDays, ExternalLink, Info, ShieldCheck } from 'lucide-react';
-import { calculateDeadline, formatDate, returnYearLabel, rulesetForDate, suggestValidDate, assessmentYearNumberForDate, assessmentYearNumberFromEnteredDate } from './rules/engine';
+import { accountingDateCodeForDate, calculateDeadline, formatDate, returnYearLabel, rulesetForDate, assessmentYearNumberForDate } from './rules/engine';
 import type { LossStatus } from './rules/types';
 import './styles.css';
 
@@ -10,14 +10,13 @@ export default function App() {
   const [accountingDate, setAccountingDate] = React.useState('');
   const [lossStatus, setLossStatus] = React.useState<LossStatus>('profit-or-no-loss');
   const validAssessmentYear = assessmentYearNumberForDate(accountingDate);
-  const enteredAssessmentYear = assessmentYearNumberFromEnteredDate(accountingDate);
   const ruleset = validAssessmentYear === undefined ? undefined : rulesetForDate(accountingDate);
-  const assessmentYear = validAssessmentYear ?? enteredAssessmentYear;
+  const assessmentYear = validAssessmentYear;
   const result = accountingDate && ruleset ? calculateDeadline(accountingDate, lossStatus, ruleset) : null;
   const selectedIsMCode = result?.code === 'M';
   const validYearLabel = assessmentYear === undefined ? null : returnYearLabel(assessmentYear);
-  const suggestedDate = suggestValidDate(accountingDate);
-  const invalidCalendarDate = enteredAssessmentYear !== undefined && validAssessmentYear === undefined;
+  const invalidCalendarDate = Boolean(accountingDate) && validAssessmentYear === undefined;
+  const accountingCode = accountingDateCodeForDate(accountingDate);
 
   React.useEffect(() => {
     if (!selectedIsMCode) setLossStatus('profit-or-no-loss');
@@ -39,7 +38,7 @@ export default function App() {
         <p className="eyebrow">HONG KONG · PROFITS TAX · MULTI-YEAR LOOKUP</p>
         <h1>Which Profits Tax Return year is this?</h1>
         <p className="hero-copy">
-          Enter your accounting period-end. The calculator identifies the likely PTR year and, where a year-specific IRD ruleset has been verified, shows the relevant code and filing dates. It does not guess future deadlines.
+          Select or enter an accounting period-end. The calculator identifies the likely PTR year and standard N/D/M code for any calendar year. It shows filing dates only where that year’s IRD rules have been verified.
         </p>
         <div className="verified-line"><ShieldCheck size={16} /> Verified represented-return deadline rules: PTR 2018/19 to PTR 2025/26.</div>
       </section>
@@ -57,45 +56,36 @@ export default function App() {
         <input
           id="accounting-date"
           className="date-input"
-          type="text"
-          inputMode="numeric"
+          type="date"
+          min="0001-01-01"
+          max="9999-12-31"
           autoComplete="off"
-          placeholder="YYYY-MM-DD (e.g. 2025-02-28)"
           value={accountingDate}
           onChange={(event) => setAccountingDate(event.target.value.trim())}
           aria-describedby="date-range-help"
         />
-        <p className="field-help" id="date-range-help">Enter a real date as YYYY-MM-DD. For example, 28 February 2025 is likely PTR 2024/25. The examples 31 February 2025 and 31 June 2024 aren't real calendar dates; they point to the likely PTR 2024/25 only as a hint, and must be corrected before the calculator can show a filing deadline.</p>
+        <p className="field-help" id="date-range-help">Use the calendar picker or type a date. The year and accounting-date code work for past and future calendar years; deadline dates are shown only for years with a verified IRD ruleset. Impossible dates such as 31 February or 31 June cannot be selected.</p>
 
         {accountingDate && assessmentYear === undefined && (
           <div className="result-card result-error" role="alert">
-            <h3>Enter a date in YYYY-MM-DD format</h3>
-            <p>Please include a valid month and day, such as 2025-02-28.</p>
+            <h3>Choose or enter a valid date</h3>
+            <p>The date must be a real calendar date in YYYY-MM-DD format, from 0001-01-01 through 9999-12-31.</p>
           </div>
         )}
 
-        {assessmentYear !== undefined && validYearLabel && invalidCalendarDate && (
-          <div className="result-card result-error" role="alert">
-            <p className="eyebrow">LIKELY RETURN YEAR — DATE NEEDS CORRECTION</p>
-            <h3>{validYearLabel}</h3>
-            {suggestedDate ? (
-              <p>The date {accountingDate} does not exist. Based on its month and year, it would ordinarily fall in this PTR reporting year. For a deadline lookup, correct it to <button className="inline-button" type="button" onClick={() => setAccountingDate(suggestedDate)}>{formatDate(suggestedDate)} ({suggestedDate})</button>. The calculator will not calculate a deadline from an impossible date.</p>
-            ) : <p>This date needs correction before we can calculate a filing deadline.</p>}
-          </div>
-        )}
 
         {assessmentYear !== undefined && validYearLabel && !invalidCalendarDate && (
           <div className="result-card year-identification" aria-live="polite">
             <p className="eyebrow">LIKELY RETURN YEAR</p>
             <h3>{validYearLabel}</h3>
-            <p className="period-explanation">For a normal accounting period, the period-end date falls within the year of assessment from 1 April {assessmentYear - 1} to 31 March {assessmentYear}. A non-standard or longer accounting period, changed accounting date, new business, or IRD direction may change which return applies. Confirm the year printed on your actual return.</p>
+            <p className="period-explanation">Standard accounting-date code: <strong>{accountingCode} code</strong>. For a normal accounting period, the period-end falls within the year of assessment from 1 April {assessmentYear - 1} to 31 March {assessmentYear}. A non-standard or longer period, accounting-date change, new business, or IRD direction may change which return applies. Confirm the year on your actual return.</p>
           </div>
         )}
 
         {assessmentYear !== undefined && !invalidCalendarDate && !ruleset && (
           <div className="result-card result-error" role="status">
             <h3>PTR year identified; deadline rules not verified here</h3>
-            <p>We identify this as likely {validYearLabel}, but this calculator has no verified deadline ruleset for that year. Future-year deadlines are not copied from an earlier year. Check the date printed on the return and the latest IRD Tax Representatives’ Corner notice.</p>
+            <p>We identify this as likely {validYearLabel}, with the standard {accountingCode}-code accounting period. The return year and code can be identified for any calendar year, but no deadline is calculated until that year’s IRD rules and amendments are verified. Check the date printed on the return and the latest IRD Tax Representatives’ Corner notice.</p>
             <p><a href={IRD_RETURN_GUIDE} target="_blank" rel="noreferrer">Open the IRD Tax Representatives’ Corner <ExternalLink size={13} /></a></p>
           </div>
         )}
@@ -163,7 +153,7 @@ export default function App() {
           </>
         )}
       </section>
-      <footer className="footer"><span>Independent reference aid · Hong Kong</span><span>Rulesets PTR 2018/19–2025/26 · future rules not extrapolated</span></footer>
+      <footer className="footer"><span>Independent reference aid · Hong Kong</span><span>Year/code lookup: all valid calendar dates · deadline rules: PTR 2018/19–2025/26 verified</span></footer>
     </main>
   );
 }

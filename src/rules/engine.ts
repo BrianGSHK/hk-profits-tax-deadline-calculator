@@ -22,7 +22,7 @@ export function isIsoDate(value: string): boolean {
   const year = Number(match[1]);
   const month = Number(match[2]);
   const day = Number(match[3]);
-  return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month);
+  return year >= 1 && year <= 9999 && month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month);
 }
 
 /** Suggest the month's final valid date for an impossible day-of-month, without changing input. */
@@ -56,7 +56,19 @@ export function assessmentYearNumberFromEnteredDate(accountingDate: string): num
 }
 
 export function returnYearLabel(assessmentYear: number): string {
-  return `PTR ${assessmentYear - 1}/${String(assessmentYear).slice(-2)} (AY${assessmentYear})`;
+  const yearSuffix = assessmentYear < 10000 ? String(assessmentYear % 100).padStart(2, '0') : String(assessmentYear);
+  return `PTR ${assessmentYear - 1}/${yearSuffix} (AY${assessmentYear})`;
+}
+
+/** Get the standard N/D/M accounting-date code independently of whether its year's deadlines are known. */
+export function accountingDateCodeForDate(accountingDate: string): 'N' | 'D' | 'M' | undefined {
+  if (!isIsoDate(accountingDate)) return undefined;
+  const month = Number(accountingDate.slice(5, 7));
+  const day = Number(accountingDate.slice(8, 10));
+  if (month >= 4 && month <= 11) return 'N';
+  if (month === 12) return 'D';
+  if (month === 1 || month === 2 || month === 3) return 'M';
+  return undefined;
 }
 
 export function rulesetForDate(accountingDate: string): ReturnRuleSet | undefined {
@@ -123,10 +135,13 @@ export function assessmentYearForDate(accountingDate: string): ReturnRuleSet | u
 export function formatDate(date: string | null, locale = 'en-HK'): string {
   if (!date || !isIsoDate(date)) return 'Not specified';
   const [year, month, day] = date.split('-').map(Number);
+  const calendarDate = new Date(0);
+  calendarDate.setUTCFullYear(year, month - 1, day);
+  calendarDate.setUTCHours(0, 0, 0, 0);
   return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
     timeZone: 'UTC',
-  }).format(new Date(Date.UTC(year, month - 1, day)));
+  }).format(calendarDate);
 }
