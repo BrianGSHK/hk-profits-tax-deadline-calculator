@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create one annual rules-review issue
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const year = new Date().getUTCFullYear();
