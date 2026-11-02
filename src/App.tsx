@@ -83,13 +83,7 @@ export default function App() {
           </div>
         )}
 
-        {assessmentYear !== undefined && !invalidCalendarDate && !ruleset && (
-          <div className="result-card result-error" role="status">
-            <h3>PTR year identified; official deadline not verified</h3>
-            <p>We identify this as likely {validYearLabel}, with the standard {accountingCode}-code accounting period. The indicative dates below are extrapolated from the latest verified year, not IRD-published deadlines. They may change due to weekends, holidays, code-specific extensions, e-filing arrangements or special circumstances. Confirm the actual date on the return and latest IRD notice before relying on a deadline.</p>
-            <p><a href={IRD_RETURN_GUIDE} target="_blank" rel="noreferrer">Check the IRD Tax Representatives’ Corner <ExternalLink size={13} /></a></p>
-          </div>
-        )}
+
 
         {ruleset && !invalidCalendarDate && (
           <>
@@ -169,6 +163,14 @@ export default function App() {
             </table></div>
             <p className="table-note">The M-code loss-case estimate is conditional on an allowable current-year loss and the required IRD extension request or notification. It is not a general deadline for loss-making companies.</p>
           </section>
+        )}
+
+        {assessmentYear !== undefined && !invalidCalendarDate && !ruleset && (
+          <div className="result-card result-error" role="status">
+            <h3>PTR year identified; official deadline not verified</h3>
+            <p>We identify this as likely {validYearLabel}, with the standard {accountingCode}-code accounting period. The indicative dates shown above are extrapolated from the latest verified year, not IRD-published deadlines. They may change due to weekends, holidays, code-specific extensions, e-filing arrangements or special circumstances. Confirm the actual date on the return and latest IRD notice before relying on a deadline.</p>
+            <p><a href={IRD_RETURN_GUIDE} target="_blank" rel="noreferrer">Check the IRD Tax Representatives’ Corner <ExternalLink size={13} /></a></p>
+          </div>
         )}
       </section>
       <footer className="footer"><span>Independent reference aid · Hong Kong</span><span>Year/code lookup: all valid calendar dates · verified deadlines: PTR 2018/19–2025/26 · later estimates only</span></footer>
