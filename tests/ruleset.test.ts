@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ACTIVE_RULE_SETS, ruleForDate } from '../src/rules/engine';
+import { ACTIVE_RULE_SETS, indicativeFutureDeadlines, ruleForDate } from '../src/rules/engine';
 
 function isoDays(start: string, end: string): string[] {
   const out: string[] = [];
@@ -39,4 +39,18 @@ describe('annual ruleset integrity', () => {
       }
     });
   }
+
+  it('projects future calendar-year schedules from the latest verified annual dates by AY offset', () => {
+    const firstFuture = indicativeFutureDeadlines('2026-04-01');
+    const secondFuture = indicativeFutureDeadlines('2027-04-01');
+    expect(firstFuture?.[0].paperDue).toBe('2027-05-04');
+    expect(secondFuture?.[0].paperDue).toBe('2028-05-04');
+    expect(secondFuture?.[1].paperDue).toBe('2028-08-31');
+    expect(secondFuture?.[2].paperDue).toBe('2028-11-30');
+    expect(secondFuture?.[3].paperDue).toBe('2029-02-01');
+    expect(secondFuture?.[3].qualification).toContain('required IRD request');
+    expect(indicativeFutureDeadlines('9996-04-01')?.[0].paperDue).toBe('9997-05-04');
+    expect(indicativeFutureDeadlines('9997-04-01')).toBeUndefined();
+    expect(indicativeFutureDeadlines('9999-04-01')).toBeUndefined();
+  });
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { CalendarDays, ExternalLink, Info, ShieldCheck } from 'lucide-react';
-import { accountingDateCodeForDate, calculateDeadline, formatDate, returnYearLabel, rulesetForDate, assessmentYearNumberForDate } from './rules/engine';
+import { accountingDateCodeForDate, calculateDeadline, formatDate, indicativeFutureDeadlines, returnYearLabel, rulesetForDate, assessmentYearNumberForDate } from './rules/engine';
 import type { LossStatus } from './rules/types';
 import './styles.css';
 
@@ -17,6 +17,7 @@ export default function App() {
   const validYearLabel = assessmentYear === undefined ? null : returnYearLabel(assessmentYear);
   const invalidCalendarDate = Boolean(accountingDate) && validAssessmentYear === undefined;
   const accountingCode = accountingDateCodeForDate(accountingDate);
+  const futureEstimates = accountingDate && !ruleset ? indicativeFutureDeadlines(accountingDate) : undefined;
 
   React.useEffect(() => {
     if (!selectedIsMCode) setLossStatus('profit-or-no-loss');
@@ -38,7 +39,7 @@ export default function App() {
         <p className="eyebrow">HONG KONG · PROFITS TAX · MULTI-YEAR LOOKUP</p>
         <h1>Which Profits Tax Return year is this?</h1>
         <p className="hero-copy">
-          Select or enter an accounting period-end. The calculator identifies the likely PTR year and standard N/D/M code for any calendar year. It shows filing dates only where that year’s IRD rules have been verified.
+          Select or enter an accounting period-end. The calculator identifies the likely PTR year and standard N/D/M code for any calendar year. It shows IRD-verified dates for covered years and clearly labelled estimates for future years.
         </p>
         <div className="verified-line"><ShieldCheck size={16} /> Verified represented-return deadline rules: PTR 2018/19 to PTR 2025/26.</div>
       </section>
@@ -84,10 +85,27 @@ export default function App() {
 
         {assessmentYear !== undefined && !invalidCalendarDate && !ruleset && (
           <div className="result-card result-error" role="status">
-            <h3>PTR year identified; deadline rules not verified here</h3>
-            <p>We identify this as likely {validYearLabel}, with the standard {accountingCode}-code accounting period. The return year and code can be identified for any calendar year, but no deadline is calculated until that year’s IRD rules and amendments are verified. Check the date printed on the return and the latest IRD Tax Representatives’ Corner notice.</p>
-            <p><a href={IRD_RETURN_GUIDE} target="_blank" rel="noreferrer">Open the IRD Tax Representatives’ Corner <ExternalLink size={13} /></a></p>
+            <h3>PTR year identified; official deadline not verified</h3>
+            <p>We identify this as likely {validYearLabel}, with the standard {accountingCode}-code accounting period. The dates below, if shown, are planning estimates extrapolated from the latest verified year, not IRD-published deadlines. They may change, including due to weekends, holidays, code-specific extensions, e-filing arrangements or special circumstances. Confirm the actual date on the return and the latest IRD notice before relying on a deadline.</p>
+            <p><a href={IRD_RETURN_GUIDE} target="_blank" rel="noreferrer">Check the IRD Tax Representatives’ Corner <ExternalLink size={13} /></a></p>
           </div>
+        )}
+
+        {futureEstimates && (
+          <section className="reference-section" aria-labelledby="estimate-title">
+            <div className="section-heading reference-heading"><div><p className="eyebrow">PLANNING ESTIMATE — NOT AN OFFICIAL DEADLINE</p><h2 id="estimate-title">Indicative dates for {validYearLabel}</h2></div></div>
+            <p className="section-intro">These dates assume the AY2026 schedule repeats on the same month/day pattern. This calculator has not verified an annual ruleset for {validYearLabel}; these are rough planning estimates, not confirmed IRD dates.</p>
+            <div className="table-wrap"><table><caption>Indicative paper and electronic dates for {validYearLabel}; confirm against IRD notices</caption><thead><tr><th scope="col">Return code</th><th scope="col">Indicative paper date</th><th scope="col">Indicative electronic date</th></tr></thead>
+              <tbody>{futureEstimates.map((estimate) => (
+                <tr key={`${estimate.code}-${estimate.label}`}>
+                  <th scope="row" data-label="Return code">{estimate.label}</th>
+                  <td data-label="Indicative paper date">{formatDate(estimate.paperDue)}</td>
+                  <td data-label="Indicative electronic date">{formatDate(estimate.electronicDue)}</td>
+                </tr>
+              ))}</tbody>
+            </table></div>
+            <p className="table-note">The M-code loss-case estimate is conditional on an allowable current-year loss and the required IRD extension request or notification. It is not a general deadline for loss-making companies.</p>
+          </section>
         )}
 
         {ruleset && !invalidCalendarDate && (
@@ -153,7 +171,7 @@ export default function App() {
           </>
         )}
       </section>
-      <footer className="footer"><span>Independent reference aid · Hong Kong</span><span>Year/code lookup: all valid calendar dates · deadline rules: PTR 2018/19–2025/26 verified</span></footer>
+      <footer className="footer"><span>Independent reference aid · Hong Kong</span><span>Year/code lookup: all valid calendar dates · verified deadlines: PTR 2018/19–2025/26 · later estimates only</span></footer>
     </main>
   );
 }

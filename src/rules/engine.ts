@@ -71,6 +71,31 @@ export function accountingDateCodeForDate(accountingDate: string): 'N' | 'D' | '
   return undefined;
 }
 
+export interface IndicativeDeadline {
+  assessmentYear: number;
+  label: string;
+  code: 'N' | 'D' | 'M';
+  paperDue: string;
+  electronicDue: string;
+  qualification?: string;
+}
+
+/** Illustrative future dates shifted from AY2026's verified schedule; never an official deadline. */
+export function indicativeFutureDeadlines(accountingDate: string): IndicativeDeadline[] | undefined {
+  const ay = assessmentYearNumberForDate(accountingDate);
+  // Avoid rendering projected ISO dates whose due date would spill past year 9999.
+  if (ay === undefined || ay <= 2026 || ay > 9997) return undefined;
+  const shift = ay - 2026;
+  const shifted = (iso: string) => `${Number(iso.slice(0, 4)) + shift}${iso.slice(4)}`;
+  const rows = [
+    { label: 'N Code', code: 'N' as const, paper: '2026-05-04', electronic: '2026-06-04' },
+    { label: 'D Code', code: 'D' as const, paper: '2026-08-31', electronic: '2026-10-02' },
+    { label: 'M Code — non-loss case', code: 'M' as const, paper: '2026-11-30', electronic: '2026-12-30' },
+    { label: 'M Code — allowable current-year loss', code: 'M' as const, paper: '2027-02-01', electronic: '2027-02-01', qualification: 'Conditional: eligible allowable current-year loss and required IRD request/notification.' },
+  ];
+  return rows.map((row) => ({ assessmentYear: ay, label: row.label, code: row.code, paperDue: shifted(row.paper), electronicDue: shifted(row.electronic), qualification: row.qualification }));
+}
+
 export function rulesetForDate(accountingDate: string): ReturnRuleSet | undefined {
   if (!isIsoDate(accountingDate)) return undefined;
   return ACTIVE_RULE_SETS.find(

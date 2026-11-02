@@ -9,6 +9,7 @@ import {
   calculateDeadline,
   deadlineForRoute,
   formatDate,
+  indicativeFutureDeadlines,
   isIsoDate,
   returnYearLabel,
   ruleForDate,
@@ -80,6 +81,24 @@ describe('multi-year PTR and assessment-year lookup', () => {
       expect(rulesetForDate(date)).toBeUndefined();
       expect(calculateDeadline(date)).toBeNull();
     }
+  });
+
+  it('provides clearly separate planning estimates for future years without treating them as verified deadlines', () => {
+    const estimate = indicativeFutureDeadlines('2026-04-01');
+    expect(estimate).toHaveLength(4);
+    expect(estimate?.map(({ label, paperDue, electronicDue }) => ({ label, paperDue, electronicDue }))).toEqual([
+      { label: 'N Code', paperDue: '2027-05-04', electronicDue: '2027-06-04' },
+      { label: 'D Code', paperDue: '2027-08-31', electronicDue: '2027-10-02' },
+      { label: 'M Code — non-loss case', paperDue: '2027-11-30', electronicDue: '2027-12-30' },
+      { label: 'M Code — allowable current-year loss', paperDue: '2028-02-01', electronicDue: '2028-02-01' },
+    ]);
+    expect(estimate?.[3].qualification).toContain('Conditional');
+    expect(indicativeFutureDeadlines('2025-03-31')).toBeUndefined();
+    expect(indicativeFutureDeadlines('2026-03-31')).toBeUndefined();
+    expect(indicativeFutureDeadlines('2025-02-31')).toBeUndefined();
+    // Estimates are UI guidance only: the official deadline calculation still refuses missing rulesets.
+    expect(rulesetForDate('2026-04-01')).toBeUndefined();
+    expect(calculateDeadline('2026-04-01')).toBeNull();
   });
 });
 
