@@ -21,6 +21,8 @@ export interface ReturnRule {
 }
 
 export interface ReturnRuleSet {
+  /** Wording for the second date column; older years may describe an application-based Internet extension, not modern e-filing. */
+  electronicDueLabel?: string;
   assessmentYear: number;
   label: string;
   validFrom: string;

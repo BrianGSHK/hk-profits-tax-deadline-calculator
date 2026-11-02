@@ -1,6 +1,6 @@
 # Hong Kong Profits Tax Deadline Calculator
 
-A small, source-linked React calculator for Hong Kong Profits Tax Return accounting-date codes and filing dates. It currently contains the AY2026 (2025/26) IRD ruleset only.
+A source-linked calculator for likely Profits Tax Return (PTR) year, accounting-date code and represented-return filing dates. Verified annual rulesets currently cover PTR 2018/19 (AY2019) through PTR 2025/26 (AY2026).
 
 ## Run locally
 
@@ -19,40 +19,35 @@ npm run typecheck
 npm run build
 ```
 
-## Five-year maintenance approach (2026–2031)
+## PTR year identification
 
-- Rules are data separated from the calculator logic, one dated ruleset per assessment year.
+For a normal basis period, the year of assessment runs from 1 April to 31 March. The calculator labels the likely PTR year from the accounting period-end date that falls within that AY. For example, valid dates 28 February 2025 and 30 June 2024 both point to PTR 2024/25. User examples 31 February 2025 and 31 June 2024 are impossible calendar dates: the interface can explain the likely PTR year from the year/month, but asks the user to correct the date before calculating a deadline. A non-standard or longer basis period, accounting-date change, commencement, or specific IRD direction may change which return applies; the actual PTR is authoritative.
+
+## Rules and maintenance
+
+The annual IRD block-extension circular, later amendments and date-specific conditions are linked with each selected ruleset; the calculator does not extrapolate future dates.
 - The annual GitHub Actions reminder is set for 15 April 2027–2031; it opens an issue with a primary-source review checklist.
 - Dependabot checks npm packages and GitHub Actions weekly; CI runs tests, type-check and production build on pushes and pull requests.
-- Do not extrapolate dates from the prior year. Add a new annual ruleset only after checking the new IRD primary circular(s), including paper/electronic dates, representative status, mandatory e-filing, extensions and loss-case conditions.
-- Update `lastVerified`, source URLs and checked dates on every ruleset refresh.
-- Keep date-boundary, gap/overlap, route and loss-case tests for each annual ruleset.
-- Maintain Node dependencies with routine security updates; run the test/typecheck/build checks before merging.
-- Review outdated rules when deadlines pass; retain old annual rules as history only if clearly labelled historical.
+- Historical dates are not treated as a universal arithmetic formula. Each supported year includes its IRD block-extension circular and located subsequent amendment circulars where applicable.
+- Older electronic/Internet extensions may be application-based and depend on return issue date, the later of normal/extended dates, and eligibility. The tool does not infer an electronic date if the source facts do not support one safely.
+- Future PTR years can be identified, but deadline rules remain unavailable until that year's IRD notices are published and verified. Dates are not copied forward.
+- Update `lastVerified`, source URLs and checked dates on each review. Test every date boundary, filing route and loss-case exception.
+- Five-year maintenance is a target, not a promise that rules stay unchanged. The IRD notice and current-year instructions always prevail.
 
-The five-year period is a maintenance target, not a promise that tax rules stay unchanged. The IRD notice and current-year instructions always prevail.
+## Scope and limitations
 
-## Current scope and limitations
-
-- AY2026 covers accounting year-ends from 1 April 2025 through 31 March 2026.
-- Deadlines reflect the 2025/26 IRD and GovHK material reviewed on 2 November 2026.
-- N-code, D-code, M-code and the special M-code allowable-loss case have different conditions. The loss-case extension requires the IRD extension process and a return showing an allowable loss; it is not a universal deadline for any loss-making company.
-- The primary-data rules engine is unit tested separately from the UI.
-- This app does not contact IRD, submit a return or determine an individual taxpayer's legal deadline.
+- Verified represented PTR rulesets: 2018/19 through 2025/26 (AY2019–AY2026).
+- M-code current-year loss dates are conditional on the applicable IRD extension process and the return showing an allowable loss; they are not universal dates for loss-making companies.
+- N-code no-extension status and normal filing due dates are distinct. Return issue dates, inactive/periodic file handling, unrepresented cases, mandatory e-filing and voluntary e-filing may differ.
+- This app does not contact IRD, submit a return or determine a taxpayer's legal deadline.
 
 ## Primary references
 
-- [GovHK: Profits Tax Return filing dates and extensions](https://www.gov.hk/en/residents/taxes/taxfiling/filing/types/profitstax.htm)
-- [IRD 2025/26 circular letter to tax representatives](https://www.ird.gov.hk/eng/pdf/bel26e.pdf)
-- [IRD D-code extension letter](https://www.ird.gov.hk/eng/pdf/bel26ea.pdf)
-- [IRD M-code extension letter](https://www.ird.gov.hk/eng/pdf/bel26eb.pdf)
+- [IRD Tax Representatives' Corner](https://www.ird.gov.hk/eng/tax/taxrep.htm)
 - [IRD electronic filing information](https://www.ird.gov.hk/eng/tax/bus_epf.htm)
-- [IRD electronic Block Extension Scheme](https://www.ird.gov.hk/eng/tax/electronic_bes.htm)
+- [IRD Profits Tax guidance](https://www.ird.gov.hk/eng/tax/bus_pft.htm)
+- Annual circulars and subsequent amendment references appear alongside each result.
 
 ## Deploy on GitHub Pages
 
-The repository includes a Pages workflow at `.github/workflows/deploy-pages.yml`. After creating the repository, enable **Settings → Pages → GitHub Actions** once. Pushes to `main` then run tests, type-check, build and deploy the static app. The published project path is configured for `https://briangshk.github.io/hk-profits-tax-deadline-calculator/`.
-
-## License
-
-Private project repository. Add a license before redistributing or reusing the code outside its intended project.
+The repository includes a Pages workflow at `.github/workflows/deploy-pages.yml`. GitHub Pages is enabled with **Settings → Pages → GitHub Actions**. Pushes to `main` run tests, type-check, build and deploy the static app at `https://briangshk.github.io/hk-profits-tax-deadline-calculator/`.

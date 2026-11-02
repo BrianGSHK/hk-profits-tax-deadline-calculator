@@ -36,6 +36,13 @@ h1 { max-width: 700px; margin-bottom: 15px; color: var(--navy); font-family: Geo
 .date-input { display: block; width: min(100%, 370px); min-height: 48px; padding: 10px 13px; border: 1px solid #cbd6dc; border-radius: 8px; color: var(--navy); background: #fff; }
 .date-input:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #65bcb5; outline-offset: 3px; }
 .field-help { margin: 7px 0 0; color: #73818d; font-size: 12px; line-height: 1.5; }
+.inline-button { padding: 0; border: 0; color: #126b70; background: transparent; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.year-identification { border-color: #cfe0df; background: #f6fbfa; }
+.period-explanation { margin: 8px 0 0; color: #546775; font-size: 12px; line-height: 1.65; }
+.ruleset-banner { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 20px; padding: 14px 15px; border: 1px solid #dce7e5; border-radius: 9px; background: #f6faf9; }
+.ruleset-banner .eyebrow { margin-bottom: 5px; }
+.ruleset-banner strong { color: var(--navy); font-size: 14px; }
+.ruleset-banner > span { color: #708078; font-size: 10px; white-space: nowrap; }
 .loss-choice { margin: 22px 0 0; padding: 15px; border: 1px solid var(--line); border-radius: 10px; }
 .loss-choice legend { padding: 0 5px; color: #425767; font-size: 12px; font-weight: 700; }
 .loss-choice.is-disabled { background: #fafbfc; }
@@ -83,6 +90,8 @@ td small { color: #71818d; font-size: 10px; }
   .calculator-card { padding: 19px; border-radius: 12px; }
   .result-grid { grid-template-columns: 1fr; }
   .result-metric { min-height: auto; }
+  .ruleset-banner { align-items: flex-start; flex-direction: column; }
+  .ruleset-banner > span { white-space: normal; }
   .source-list { grid-template-columns: 1fr; }
   .footer { flex-direction: column; }
   .table-wrap { overflow: visible; border: 0; background: transparent; }

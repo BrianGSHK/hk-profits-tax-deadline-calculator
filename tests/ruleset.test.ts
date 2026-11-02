@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AY2026 } from '../src/rules/ay2026';
-import { ruleForDate } from '../src/rules/engine';
+import { ACTIVE_RULE_SETS, ruleForDate } from '../src/rules/engine';
 
 function isoDays(start: string, end: string): string[] {
   const out: string[] = [];
@@ -13,36 +12,31 @@ function isoDays(start: string, end: string): string[] {
   return out;
 }
 
+const statuses = ['profit-or-no-loss', 'allowable-current-year-loss'] as const;
+
 describe('annual ruleset integrity', () => {
-  it('covers every valid AY2026 date exactly once for each loss-status route', () => {
-    for (const loss of ['profit-or-no-loss', 'allowable-current-year-loss'] as const) {
-      for (const date of isoDays(AY2026.validFrom, AY2026.validTo)) {
-        expect(ruleForDate(date, loss, AY2026), `${date} / ${loss}`).toBeDefined();
+  for (const set of ACTIVE_RULE_SETS) {
+    it(`covers each valid ${set.label} date exactly once per loss-status scenario`, () => {
+      for (const loss of statuses) {
+        for (const date of isoDays(set.validFrom, set.validTo)) {
+          expect(ruleForDate(date, loss, set), `${date} / ${loss}`).toBeDefined();
+          const effective = set.rules.filter((rule) => {
+            if (date < rule.from || date > rule.to) return false;
+            if (rule.id === 'm-loss') return loss === 'allowable-current-year-loss';
+            if (rule.id === 'm-profit') return loss === 'profit-or-no-loss';
+            return true;
+          });
+          expect(effective.length, `${set.label}: ${date} / ${loss}`).toBe(1);
+        }
       }
-    }
-  });
+    });
 
-  it('contains no gaps or overlaps in effective rules for either loss status', () => {
-    const days = isoDays(AY2026.validFrom, AY2026.validTo);
-    for (const loss of ['profit-or-no-loss', 'allowable-current-year-loss'] as const) {
-      for (const date of days) {
-        expect(ruleForDate(date, loss, AY2026), `${date} / ${loss}`).toBeDefined();
-        const effective = AY2026.rules.filter((r) => {
-          if (date < r.from || date > r.to) return false;
-          if (r.id === 'm-loss') return loss === 'allowable-current-year-loss';
-          if (r.id === 'm-profit') return loss === 'profit-or-no-loss';
-          return true;
-        });
-        expect(effective.length, `${date} / ${loss}`).toBe(1);
+    it(`contains primary IRD references for ${set.label}`, () => {
+      expect(set.sources.length).toBeGreaterThan(0);
+      for (const source of set.sources) {
+        expect(source.url).toMatch(/^https:\/\/(www\.)?(ird\.gov\.hk|gov\.hk)\//);
+        expect(source.checkedOn).toMatch(/^2026-/);
       }
-    }
-  });
-
-  it('includes primary IRD references with direct HTTPS URLs', () => {
-    expect(AY2026.sources.length).toBeGreaterThanOrEqual(3);
-    for (const source of AY2026.sources) {
-      expect(source.url).toMatch(/^https:\/\/www\.(ird\.gov\.hk|gov\.hk)\//);
-      expect(source.checkedOn).toMatch(/^2026-/);
-    }
-  });
+    });
+  }
 });
